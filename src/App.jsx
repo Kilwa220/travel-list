@@ -1,0 +1,129 @@
+import {useEffect, useState} from 'react'
+
+import './App.css'
+import Container from './components/Container'
+import Button from './components/Button'
+
+
+
+const generateOrderNumber = () => {
+  const orderNumber = 1
+  return () => {
+    return orderNumber + 1
+  }
+}
+
+const getOrderNumber = generateOrderNumber()
+
+function generateId() {
+	return crypto.randomUUID()
+}
+
+const Form = ({ addItem }) => {
+  const [description, setDescription] = useState('')
+
+  const options = []
+  for (let i = 0; i< 20; i++){
+    options.push(<option key={i} value={i + 1}>{i + 1}</option>)
+  }
+
+  const inputStyle = {
+      textColor: 'black',
+      border: "1px solid oklch(82.8% 0.111 230.318)",
+      padding: "1px 3px",
+      textAlign: 'center',
+      borderRadius: '3px',
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const desc = description.trim()
+    const quantity = e.target.quantity.value
+    console.log(desc)
+    if(desc !== '')  {
+      addItem(quantity, desc)
+    }
+
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <legend>What do you need for your trip?</legend>
+        <select name="quantity" id="" className='text-[15px] pt-[3px] pb-[3px] text-center border border-sky-300 rounded-sm w-[100px]'>
+          {options}
+        </select>
+        <input style={inputStyle} className="bg-gray-200 focus:outline-none" type="text" placeholder='Item...' name="item" value={description} onChange={(e) => setDescription(e.target.value)}/>
+        <Button type="submit" title="Add" value="submit"/>
+    </form>
+  )
+}
+
+const Item = ({ quantity, description }) => {
+  const {isChecked, setIsChecked} = useState(false)
+  return (
+    <li>
+      <input type="checkbox" id="item-text" name='' checked={isChecked} onChange={() => setIsChecked(!isChecked)}/>
+      {isChecked 
+      ? (<label htmlFor="item-text" className='text-orange-400'>{quantity} {description}</label>)
+      : (<label htmlFor="item-text" className=''>{quantity} {description}</label>)
+      }
+    </li>
+  )
+}
+
+
+const ItemsSection = ({ items, setItems }) => {
+
+  const removeItem = (id) => {
+    setItems(prevItems => prevItems.filter(item => item.id !== id))
+  }
+
+  const clearItems = () =>  {
+    setItems([])
+  }
+
+  const sortByInputOrder = () => {
+    setItems(prevItems => [...prevItems].sort((a, b) => a.orderNumber - b.orderNumber))
+  }
+  
+  return (
+    <ul>
+      {
+        items.map(item => <Item key={item.key} quantity={item.quantity} description={item.description} />)
+      }
+    </ul>
+  )
+}
+
+function App() {
+  const [items, setItems] = useState([])
+
+  const addItem = (quantity, description) => {
+    console.log("hello from add")
+    setItems(prev => [
+      ...prev,
+      {
+        id: generateId(),
+        order: getOrderNumber(),
+        quantity: quantity,
+        description: description
+      }
+    ])
+  }
+
+
+  useEffect(() => {console.log(items)}, [items])
+
+
+  return (
+    <Container>
+      <h1>FAR AWAY</h1>
+      <main>
+        <Form addItem={addItem}/>
+        <ItemsSection items={items} setItems={setItems}/>
+      </main>
+    </Container>
+  )
+}
+
+export default App
