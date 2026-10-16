@@ -58,15 +58,16 @@ const Form = ({ addItem }) => {
   )
 }
 
-const Item = ({ quantity, description }) => {
-  const {isChecked, setIsChecked} = useState(false)
+const Item = ({ quantity, description, onClick }) => {
+  const [isChecked, setIsChecked] = useState(false)
   return (
     <li>
-      <input type="checkbox" id="item-text" name='' checked={isChecked} onChange={() => setIsChecked(!isChecked)}/>
-      {isChecked 
-      ? (<label htmlFor="item-text" className='text-orange-400'>{quantity} {description}</label>)
+      <input type="checkbox" id="item-text" name='j' checked={isChecked} onChange={() => setIsChecked(!isChecked)}/>
+      {isChecked
+      ? (<label htmlFor="item-text" className='line-through'>{quantity} {description}</label>)
       : (<label htmlFor="item-text" className=''>{quantity} {description}</label>)
       }
+      <button type="button" onClick={onClick}>x</button>
     </li>
   )
 }
@@ -83,15 +84,24 @@ const ItemsSection = ({ items, setItems }) => {
   }
 
   const sortByInputOrder = () => {
-    setItems(prevItems => [...prevItems].sort((a, b) => a.orderNumber - b.orderNumber))
+    console.log("sdkfaslk")
+    setItems(prevItems => [...prevItems].sort((a, b) => b.orderNumber - a.orderNumber))
   }
   
   return (
-    <ul>
-      {
-        items.map(item => <Item key={item.key} quantity={item.quantity} description={item.description} />)
-      }
-    </ul>
+    <>
+      <ul>
+        {
+          items.map(item => <Item  key={item.id} quantity={item.quantity} description={item.description} onClick={() => removeItem(item.id)} />)
+        }
+      </ul>
+      <Button title="CLEAR LIST" type="button" onClick={() => clearItems()} />
+      <select name="" id="" onChange={() => sortByInputOrder()}>
+        <option value="" onSelect={() => sortByInputOrder()}>SORT BY INPUT ORDER</option>
+        <option value="">SORT BY DESCRIPTION</option>
+        <option value="">SORT BY PACKED STATUS</option>
+      </select>
+    </>
   )
 }
 
@@ -122,6 +132,8 @@ function App() {
         <Form addItem={addItem}/>
         <ItemsSection items={items} setItems={setItems}/>
       </main>
+
+      <footer>You have {items.length} items on your list, and you already packed </footer>
     </Container>
   )
 }
